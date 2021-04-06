@@ -88,7 +88,11 @@ export const Home = () => {
 				<DialogContent>
 					<Select value={language1} fullWidth onChange={(e) => setLanguage1(String(e.target.value))} input={<Input />}>
 						{LANGUAGE.map((language) => {
-							return <MenuItem value={language.value}>{language.name}</MenuItem>;
+							return (
+								<MenuItem key={`lang1-${language.value}`} value={language.value}>
+									{language.name}
+								</MenuItem>
+							);
 						})}
 					</Select>
 					<FormHelperText>Speaker Language 1</FormHelperText>
@@ -100,7 +104,11 @@ export const Home = () => {
 						className="mt-6"
 					>
 						{LANGUAGE.map((language) => {
-							return <MenuItem value={language.value}>{language.name}</MenuItem>;
+							return (
+								<MenuItem key={`lang2-${language.value}`} value={language.value}>
+									{language.name}
+								</MenuItem>
+							);
 						})}
 					</Select>
 					<FormHelperText>Speaker Language 2</FormHelperText>
