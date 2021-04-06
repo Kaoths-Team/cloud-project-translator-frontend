@@ -39,7 +39,7 @@ export const Home = () => {
 	const joinRoom = () => router.push(`/room/${roomCode}`);
 	const createRoom = () => {
 		closeCreateRoom();
-		setRoomCode(`${language1}#${language2}#${getRandomInt(99999)}`);
+		setRoomCode(`${language1}_${language2}_${getRandomInt(99999)}`);
 		openJoinRoom();
 	};
 
@@ -60,65 +60,60 @@ export const Home = () => {
 					<Button variant="contained" color="secondary" onClick={openCreateRoom} fullWidth>
 						Create Room
 					</Button>
-					<Dialog open={joinRoomOpen} onClose={closeJoinRoom} fullWidth maxWidth="xs">
-						<DialogTitle>Join Room</DialogTitle>
-						<DialogContent>
-							<TextField
-								autoFocus
-								margin="dense"
-								label="Room Code"
-								value={roomCode}
-								onChange={(e) => setRoomCode(e.target.value)}
-								fullWidth
-							/>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={closeJoinRoom} color="primary">
-								Cancel
-							</Button>
-							<Button onClick={joinRoom} color="primary">
-								Join
-							</Button>
-						</DialogActions>
-					</Dialog>
-					<Dialog open={createRoomOpen} onClose={closeCreateRoom} fullWidth maxWidth="xs">
-						<DialogTitle>Create Room</DialogTitle>
-						<DialogContent>
-							<Select
-								value={language1}
-								fullWidth
-								onChange={(e) => setLanguage1(String(e.target.value))}
-								input={<Input />}
-							>
-								{LANGUAGE.map((language) => {
-									return <MenuItem value={language.value}>{language.name}</MenuItem>;
-								})}
-							</Select>
-							<FormHelperText>Speaker Language 1</FormHelperText>
-							<Select
-								value={language2}
-								fullWidth
-								onChange={(e) => setLanguage2(String(e.target.value))}
-								input={<Input />}
-								className="mt-6"
-							>
-								{LANGUAGE.map((language) => {
-									return <MenuItem value={language.value}>{language.name}</MenuItem>;
-								})}
-							</Select>
-							<FormHelperText>Speaker Language 2</FormHelperText>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={closeCreateRoom} color="primary">
-								Cancel
-							</Button>
-							<Button onClick={createRoom} color="primary">
-								Create
-							</Button>
-						</DialogActions>
-					</Dialog>
 				</div>
 			</Layout>
+			<Dialog open={joinRoomOpen} onClose={closeJoinRoom} fullWidth maxWidth="xs">
+				<DialogTitle>Join Room</DialogTitle>
+				<DialogContent>
+					<TextField
+						autoFocus
+						margin="dense"
+						label="Room Code"
+						value={roomCode}
+						onChange={(e) => setRoomCode(e.target.value)}
+						fullWidth
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button variant="contained" onClick={closeJoinRoom} color="primary">
+						Cancel
+					</Button>
+					<Button variant="contained" onClick={joinRoom} color="primary">
+						Join
+					</Button>
+				</DialogActions>
+			</Dialog>
+			<Dialog open={createRoomOpen} onClose={closeCreateRoom} fullWidth maxWidth="xs">
+				<DialogTitle>Create Room</DialogTitle>
+				<DialogContent>
+					<Select value={language1} fullWidth onChange={(e) => setLanguage1(String(e.target.value))} input={<Input />}>
+						{LANGUAGE.map((language) => {
+							return <MenuItem value={language.value}>{language.name}</MenuItem>;
+						})}
+					</Select>
+					<FormHelperText>Speaker Language 1</FormHelperText>
+					<Select
+						value={language2}
+						fullWidth
+						onChange={(e) => setLanguage2(String(e.target.value))}
+						input={<Input />}
+						className="mt-6"
+					>
+						{LANGUAGE.map((language) => {
+							return <MenuItem value={language.value}>{language.name}</MenuItem>;
+						})}
+					</Select>
+					<FormHelperText>Speaker Language 2</FormHelperText>
+				</DialogContent>
+				<DialogActions>
+					<Button variant="contained" onClick={closeCreateRoom} color="primary">
+						Cancel
+					</Button>
+					<Button variant="contained" onClick={createRoom} color="primary">
+						Create
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</>
 	);
 };
