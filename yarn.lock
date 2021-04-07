@@ -3174,6 +3174,10 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+"react-audio-recorder@github:MatrixFrog/react-audio-recorder#master":
+  version "2.1.0"
+  resolved "https://codeload.github.com/MatrixFrog/react-audio-recorder/tar.gz/fad7a2c5e595a894f7acc084ab7fba6b02868216"
+
 react-dom@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"

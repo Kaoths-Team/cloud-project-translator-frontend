@@ -6,10 +6,26 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import MicIcon from '@material-ui/icons/Mic';
+import MicNoneIcon from '@material-ui/icons/MicNone';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/layout';
+
+const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
+
+const recordingLabel: any = (
+	<div className="mic-container">
+		<MicIcon style={{ fontSize: 150, zIndex: 1 }} />
+		<div className="circle" style={{ animationDelay: '0s' }}></div>
+		<div className="circle" style={{ animationDelay: '1s' }}></div>
+	</div>
+);
+const removeLabel: any = <RefreshIcon style={{ fontSize: 150 }} />;
+const recordLabel: any = <MicNoneIcon style={{ fontSize: 150 }} />;
 
 export const Room = () => {
 	const router = useRouter();
@@ -29,11 +45,6 @@ export const Room = () => {
 		}
 	}, [nativeLanguage, choiceOpen]);
 
-	const [selectedFile, setSelectedFile] = useState(null);
-	const handleCapture = ({ target }: any) => {
-		setSelectedFile(target.files[0]);
-	};
-
 	return (
 		<>
 			<Head>
@@ -45,18 +56,16 @@ export const Room = () => {
 					<>
 						<h3 className="text-xl font-bold mb-4 text-gray-400">Your Native Language: {nativeLanguage}</h3>
 						<div className="overflow-auto border-2 border-red-300 mb-2 h-chat">Lorem ipsum dolor sit amet...</div>
-						<input
-							accept="image/*"
-							style={{ display: 'none' }}
-							id="upload-voice"
-							type="file"
-							onChange={handleCapture}
-						/>
-						<label htmlFor="upload-voice">
-							<Button variant="contained" color="primary" component="span" fullWidth>
-								Upload your voice
-							</Button>
-						</label>
+						<div className="icon-container">
+							<AudioRecorder
+								playLabel=""
+								removeLabel={removeLabel}
+								recordLabel={recordLabel}
+								recordingLabel={recordingLabel}
+								downloadable={false}
+								onChange={(e) => console.log(e)}
+							/>
+						</div>
 					</>
 				)}
 			</Layout>
