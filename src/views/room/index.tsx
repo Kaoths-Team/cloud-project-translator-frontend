@@ -12,7 +12,8 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { io } from 'socket.io-client';
 import Layout from '../../components/layout';
 
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
@@ -27,6 +28,8 @@ const recordingLabel: any = (
 const removeLabel: any = <RefreshIcon style={{ fontSize: 150 }} />;
 const recordLabel: any = <MicNoneIcon style={{ fontSize: 150 }} />;
 
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_IO || '');
+
 export const Room = () => {
 	const router = useRouter();
 	const { code } = router.query;
@@ -38,12 +41,24 @@ export const Room = () => {
 	}, [code]);
 	const [nativeLanguage, setNativeLanguage] = useState('');
 	const [choiceOpen, setChoiceOpen] = useState(true);
+	const [duration, setDuration] = useState(0);
+	const [voiceBlob, setVoiceBlob] = useState<any>(null);
+
+	useEffect(() => {
+		socket.on('on-recieve', (voice) => {
+			console.log(voice);
+		});
+	}, []);
 
 	useEffect(() => {
 		if (!choiceOpen) {
-			console.log('fetch every 5 seconds', nativeLanguage);
+			socket.emit('join-room', code);
 		}
 	}, [nativeLanguage, choiceOpen]);
+
+	const sendVoice = useCallback(() => {
+		socket.emit('voice', { voiceBlob, targetLanguageCode: 'th', roomCode: code });
+	}, [voiceBlob]);
 
 	return (
 		<>
@@ -62,9 +77,20 @@ export const Room = () => {
 								removeLabel={removeLabel}
 								recordLabel={recordLabel}
 								recordingLabel={recordingLabel}
-								downloadable={false}
-								onChange={(e) => console.log(e)}
+								downloadable={true}
+								onChange={(e) => {
+									setVoiceBlob(e.audioData);
+									setDuration(e.duration);
+								}}
 							/>
+						</div>
+						<div className="text-center">
+							{duration > 60 && (
+								<p className="text-center text-red-600 font-bold">Voice duration must be no longer than 1 minute.</p>
+							)}
+							<Button variant="contained" onClick={sendVoice} color="primary">
+								Send voice
+							</Button>
 						</div>
 					</>
 				)}
