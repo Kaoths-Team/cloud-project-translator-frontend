@@ -15,7 +15,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
 import Layout from '../../components/layout';
-
+import { socket } from '../../instances/socket.instance'
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
 
 const recordingLabel: any = (
@@ -28,10 +28,9 @@ const recordingLabel: any = (
 const removeLabel: any = <RefreshIcon style={{ fontSize: 150 }} />;
 const recordLabel: any = <MicNoneIcon style={{ fontSize: 150 }} />;
 
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_IO || '');
-
 export const Room = () => {
 	const router = useRouter();
+	
 	const { code } = router.query;
 	const choices = useMemo(() => {
 		if (typeof code === 'string') {

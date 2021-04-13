@@ -12,6 +12,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import Layout from '../../components/layout';
+import { socket } from '../../instances/socket.instance'
 
 const getRandomInt = (max: number) => {
 	return Math.floor(Math.random() * max);
