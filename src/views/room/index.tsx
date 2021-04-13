@@ -13,7 +13,6 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { io } from 'socket.io-client';
 import Layout from '../../components/layout';
 import { socket } from '../../instances/socket.instance'
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
@@ -30,7 +29,7 @@ const recordLabel: any = <MicNoneIcon style={{ fontSize: 150 }} />;
 
 export const Room = () => {
 	const router = useRouter();
-	
+	socket.on('...', () => {})
 	const { code } = router.query;
 	const choices = useMemo(() => {
 		if (typeof code === 'string') {

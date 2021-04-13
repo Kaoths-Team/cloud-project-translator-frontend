@@ -30,7 +30,7 @@ const LANGUAGE: Language[] = [
 
 export const Home = () => {
 	const router = useRouter();
-
+	socket.on('...', () => {})
 	const [joinRoomOpen, setJoinRoomOpen] = useState(false);
 	const [createRoomOpen, setCreateRoomOpen] = useState(false);
 	const openJoinRoom = () => setJoinRoomOpen(true);
