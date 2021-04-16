@@ -14,7 +14,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/layout';
-import { socket } from '../../instances/socket.instance'
+import { socket } from '../../instances/socket.instance';
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
 
 const recordingLabel: any = (
@@ -43,7 +43,7 @@ export const Room = () => {
 	const [voiceBlob, setVoiceBlob] = useState<any>(null);
 
 	useEffect(() => {
-		socket.on('on-recieve', (voice) => {
+		socket.on('on-recieve', (voice: any) => {
 			console.log(voice);
 		});
 	}, []);
