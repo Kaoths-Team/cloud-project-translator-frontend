@@ -41,6 +41,7 @@
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "@types/redis": "^2.8.28",
+    "@types/socket.io-client": "^1.4.36",
     "autoprefixer": "^10.2.1",
     "postcss": "^8.2.4",
     "tailwindcss": "^2.0.2"
