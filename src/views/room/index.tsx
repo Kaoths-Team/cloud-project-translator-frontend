@@ -12,9 +12,11 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/layout';
+import languages, { Language } from '../../constances/languages';
 import { socket } from '../../instances/socket.instance';
+
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
 
 const recordingLabel: any = (
@@ -27,20 +29,42 @@ const recordingLabel: any = (
 const removeLabel: any = <RefreshIcon style={{ fontSize: 150 }} />;
 const recordLabel: any = <MicNoneIcon style={{ fontSize: 150 }} />;
 
+type Chat = {
+	voice: Blob;
+	me: boolean;
+};
+
 export const Room = () => {
 	const router = useRouter();
-	socket.on('...', () => {})
-	const { code } = router.query;
-	const choices = useMemo(() => {
-		if (typeof code === 'string') {
-			return code.split('_').slice(0, 2);
-		}
-		return [];
-	}, [code]);
-	const [nativeLanguage, setNativeLanguage] = useState('');
+	const { roomCode } = router.query;
+	const [nativeLanguage, setNativeLanguage] = useState<Language>();
+	const [chooseIndex, setChooseIndex] = useState(0);
 	const [choiceOpen, setChoiceOpen] = useState(true);
 	const [duration, setDuration] = useState(0);
-	const [voiceBlob, setVoiceBlob] = useState<any>(null);
+	const [voiceBlob, setVoiceBlob] = useState<Blob | null>(null);
+	const [voiceList, setVoiceList] = useState<Chat[]>([]);
+
+	const chooseNativeLanguage = () => {
+		socket.emit('join-room', { roomCode, nativeLanguage: languages[chooseIndex] });
+		setNativeLanguage(languages[chooseIndex]);
+		setChoiceOpen(false);
+	};
+
+	const recordVoice = (e: any) => {
+		if (e.audioData) {
+			setVoiceBlob(e.audioData);
+			setDuration(e.duration);
+		}
+	};
+
+	const sendVoice = () => {
+		if (voiceBlob) {
+			socket.emit('voice', { voice: voiceBlob });
+			setVoiceList([...voiceList, { voice: voiceBlob, me: true }]);
+			setVoiceBlob(null);
+			setDuration(0);
+		}
+	};
 
 	useEffect(() => {
 		socket.on('on-recieve', (voice: any) => {
@@ -48,15 +72,27 @@ export const Room = () => {
 		});
 	}, []);
 
-	useEffect(() => {
-		if (!choiceOpen) {
-			socket.emit('join-room', code);
+	const chatJsx = useMemo(() => {
+		const voiceChat = [];
+		for (const chat of voiceList) {
+			const audioURL = window.URL.createObjectURL(chat.voice);
+			if (chat.me) {
+				voiceChat.push(<audio className="ml-auto" src={audioURL} controls />);
+			} else {
+				voiceChat.push(<audio className="" src={audioURL} controls />);
+			}
 		}
-	}, [nativeLanguage, choiceOpen]);
+		return voiceChat;
+	}, [voiceList]);
 
-	const sendVoice = useCallback(() => {
-		socket.emit('voice', { voiceBlob, targetLanguageCode: 'th', roomCode: code });
-	}, [voiceBlob]);
+	const currentVoiceJsx = useMemo(() => {
+		if (voiceBlob) {
+			const audioURL = window.URL.createObjectURL(voiceBlob);
+			return <audio className="mx-auto mb-6" src={audioURL} controls />;
+		} else {
+			return <audio className="mx-auto mb-6" controls />;
+		}
+	}, [voiceBlob, duration]);
 
 	return (
 		<>
@@ -64,31 +100,32 @@ export const Room = () => {
 				<title>Thanawat Super Omega Project</title>
 			</Head>
 			<Layout>
-				<h1 className="text-3xl font-bold mb-2">Room code: {code}</h1>
+				<h1 className="text-3xl font-bold mb-2">Room code: {roomCode}</h1>
 				{!choiceOpen && (
 					<>
-						<h3 className="text-xl font-bold mb-4 text-gray-400">Your Native Language: {nativeLanguage}</h3>
-						<div className="overflow-auto border-2 border-red-300 mb-2 h-chat">Lorem ipsum dolor sit amet...</div>
+						<h3 className="text-xl font-bold mb-4 text-gray-400">Your Native Language: {nativeLanguage?.name}</h3>
+						<div className="overflow-auto border-2 border-red-300 mb-2 h-chat p-4 space-y-4">{chatJsx}</div>
 						<div className="icon-container">
 							<AudioRecorder
 								playLabel=""
 								removeLabel={removeLabel}
 								recordLabel={recordLabel}
 								recordingLabel={recordingLabel}
-								downloadable={true}
-								onChange={(e) => {
-									setVoiceBlob(e.audioData);
-									setDuration(e.duration);
-								}}
+								downloadable={false}
+								onChange={recordVoice}
 							/>
 						</div>
 						<div className="text-center">
-							{duration > 60 && (
+							{duration > 60 ? (
 								<p className="text-center text-red-600 font-bold">Voice duration must be no longer than 1 minute.</p>
+							) : (
+								<>
+									{currentVoiceJsx}
+									<Button variant="contained" onClick={sendVoice} color="primary">
+										Send voice
+									</Button>
+								</>
 							)}
-							<Button variant="contained" onClick={sendVoice} color="primary">
-								Send voice
-							</Button>
 						</div>
 					</>
 				)}
@@ -96,22 +133,14 @@ export const Room = () => {
 			<Dialog open={choiceOpen} fullWidth maxWidth="xs">
 				<DialogTitle>Choose your native language</DialogTitle>
 				<DialogContent>
-					<RadioGroup value={nativeLanguage} onChange={(e) => setNativeLanguage(e.target.value)}>
-						{choices.map((choice) => {
-							return <FormControlLabel key={`choice-${choice}`} value={choice} control={<Radio />} label={choice} />;
+					<RadioGroup value={chooseIndex} onChange={(e) => setChooseIndex(Number(e.target.value))}>
+						{languages.map((language, i) => {
+							return <FormControlLabel key={`choice-${i}`} value={i} control={<Radio />} label={language.name} />;
 						})}
 					</RadioGroup>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						variant="contained"
-						onClick={() => {
-							if (nativeLanguage) {
-								setChoiceOpen(false);
-							}
-						}}
-						color="primary"
-					>
+					<Button variant="contained" onClick={chooseNativeLanguage} color="primary">
 						Apply
 					</Button>
 				</DialogActions>
