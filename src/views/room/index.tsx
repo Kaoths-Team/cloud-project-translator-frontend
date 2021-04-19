@@ -15,8 +15,8 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/layout';
 import languages, { Language } from '../../constances/languages';
+import { CLIENT_EVENT, SERVER_EVENT } from '../../enums/event.enum';
 import { socket } from '../../instances/socket.instance';
-import { CLIENT_EVENT, SERVER_EVENT } from "../../enums/event.enum";
 
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
 
@@ -46,7 +46,7 @@ export const Room = () => {
 	const [voiceList, setVoiceList] = useState<Chat[]>([]);
 
 	const chooseNativeLanguage = () => {
-		socket.emit(CLIENT_EVENT.JoinRoom, { roomCode, languageCode: languages[chooseIndex] });
+		socket.emit(CLIENT_EVENT.JoinRoom, { roomCode, languageCode: languages[chooseIndex].code });
 		setNativeLanguage(languages[chooseIndex]);
 		setChoiceOpen(false);
 	};
@@ -67,21 +67,44 @@ export const Room = () => {
 		}
 	};
 
+	const addVoice = (voice: any) => {
+		const blob = new Blob([voice], { type: 'audio/wav' });
+		setVoiceList([...voiceList, { voice: blob, me: false }]);
+	};
+
 	useEffect(() => {
 		socket.on(SERVER_EVENT.VoiceResponse, (voice: any) => {
-			console.log(voice);
+			addVoice(voice);
 		});
 	}, []);
 
 	const chatJsx = useMemo(() => {
 		const voiceChat = [];
+		let i = 0;
 		for (const chat of voiceList) {
 			const audioURL = window.URL.createObjectURL(chat.voice);
 			if (chat.me) {
-				voiceChat.push(<audio className="ml-auto" src={audioURL} controls />);
+				voiceChat.push(
+					<audio
+						key={`v-${i}`}
+						className="ml-auto"
+						src={audioURL}
+						controls
+						autoPlay={i + 1 == voiceList.length ? true : false}
+					/>
+				);
 			} else {
-				voiceChat.push(<audio className="" src={audioURL} controls />);
+				voiceChat.push(
+					<audio
+						key={`v-${i}`}
+						className=""
+						src={audioURL}
+						controls
+						autoPlay={i + 1 == voiceList.length ? true : false}
+					/>
+				);
 			}
+			i++;
 		}
 		return voiceChat;
 	}, [voiceList]);
