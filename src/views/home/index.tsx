@@ -15,6 +15,7 @@ const getRandomInt = (max: number) => {
 
 export const Home = () => {
 	const router = useRouter();
+	const [roomCode, setRoomCode] = useState('');
 	const [joinRoomOpen, setJoinRoomOpen] = useState(false);
 	const [createRoomOpen, setCreateRoomOpen] = useState(false);
 	const openJoinRoom = () => setJoinRoomOpen(true);
@@ -27,8 +28,6 @@ export const Home = () => {
 		setRoomCode(`${getRandomInt(999999999999)}`);
 		openJoinRoom();
 	};
-
-	const [roomCode, setRoomCode] = useState('');
 
 	return (
 		<>

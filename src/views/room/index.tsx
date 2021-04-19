@@ -16,6 +16,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/layout';
 import languages, { Language } from '../../constances/languages';
 import { socket } from '../../instances/socket.instance';
+import { CLIENT_EVENT, SERVER_EVENT } from "../../enums/event.enum";
 
 const AudioRecorder = dynamic(() => import('react-audio-recorder'), { ssr: false });
 
@@ -45,7 +46,7 @@ export const Room = () => {
 	const [voiceList, setVoiceList] = useState<Chat[]>([]);
 
 	const chooseNativeLanguage = () => {
-		socket.emit('join-room', { roomCode, nativeLanguage: languages[chooseIndex] });
+		socket.emit(CLIENT_EVENT.JoinRoom, { roomCode, languageCode: languages[chooseIndex] });
 		setNativeLanguage(languages[chooseIndex]);
 		setChoiceOpen(false);
 	};
@@ -59,7 +60,7 @@ export const Room = () => {
 
 	const sendVoice = () => {
 		if (voiceBlob) {
-			socket.emit('voice', { voice: voiceBlob });
+			socket.emit(CLIENT_EVENT.VoiceRequest, { audio: voiceBlob });
 			setVoiceList([...voiceList, { voice: voiceBlob, me: true }]);
 			setVoiceBlob(null);
 			setDuration(0);
@@ -67,7 +68,7 @@ export const Room = () => {
 	};
 
 	useEffect(() => {
-		socket.on('on-recieve', (voice: any) => {
+		socket.on(SERVER_EVENT.VoiceResponse, (voice: any) => {
 			console.log(voice);
 		});
 	}, []);
