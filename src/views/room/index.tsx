@@ -67,46 +67,24 @@ export const Room = () => {
 		}
 	};
 
-	const addVoice = (voice: any) => {
-		const blob = new Blob([voice], { type: 'audio/wav' });
-		setVoiceList([...voiceList, { voice: blob, me: false }]);
-	};
-
 	useEffect(() => {
 		socket.on(SERVER_EVENT.VoiceResponse, (voice: any) => {
-			addVoice(voice);
+			const blob = new Blob([voice], { type: 'audio/wav' });
+			setVoiceList([...voiceList, { voice: blob, me: false }]);
 		});
-	}, []);
+	}, [voiceList]);
 
 	const chatJsx = useMemo(() => {
-		const voiceChat = [];
-		let i = 0;
-		for (const chat of voiceList) {
+		return voiceList.map((chat, i) => {
 			const audioURL = window.URL.createObjectURL(chat.voice);
 			if (chat.me) {
-				voiceChat.push(
-					<audio
-						key={`v-${i}`}
-						className="ml-auto"
-						src={audioURL}
-						controls
-						autoPlay={i + 1 == voiceList.length ? true : false}
-					/>
+				return (
+					<audio key={`v-${i}`} className="ml-auto" src={audioURL} controls autoPlay={i + 1 == voiceList.length} />
 				);
 			} else {
-				voiceChat.push(
-					<audio
-						key={`v-${i}`}
-						className=""
-						src={audioURL}
-						controls
-						autoPlay={i + 1 == voiceList.length ? true : false}
-					/>
-				);
+				return <audio key={`v-${i}`} src={audioURL} controls autoPlay={i + 1 == voiceList.length} />;
 			}
-			i++;
-		}
-		return voiceChat;
+		});
 	}, [voiceList]);
 
 	const currentVoiceJsx = useMemo(() => {
