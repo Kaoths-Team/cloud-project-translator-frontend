@@ -12,7 +12,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Layout from '../../components/layout';
 import languages, { Language } from '../../constances/languages';
 import { CLIENT_EVENT, SERVER_EVENT } from '../../enums/event.enum';
@@ -44,6 +44,7 @@ export const Room = () => {
 	const [duration, setDuration] = useState(0);
 	const [voiceBlob, setVoiceBlob] = useState<Blob | null>(null);
 	const [voiceList, setVoiceList] = useState<Chat[]>([]);
+	const voiceContainerRef = useRef<HTMLDivElement | null>(null);
 
 	const chooseNativeLanguage = () => {
 		socket.emit(CLIENT_EVENT.JoinRoom, { roomCode, languageCode: languages[chooseIndex].code });
@@ -87,6 +88,15 @@ export const Room = () => {
 		});
 	}, [voiceList]);
 
+	useEffect(() => {
+		if (voiceContainerRef) {
+			const scrollHeight = voiceContainerRef.current?.scrollHeight || 0;
+			const clientHeight = voiceContainerRef.current?.clientHeight || 0;
+			const scroll = scrollHeight - clientHeight;
+			voiceContainerRef.current?.scrollTo(0, scroll);
+		}
+	}, [chatJsx]);
+
 	const currentVoiceJsx = useMemo(() => {
 		if (voiceBlob) {
 			const audioURL = window.URL.createObjectURL(voiceBlob);
@@ -106,7 +116,9 @@ export const Room = () => {
 				{!choiceOpen && (
 					<>
 						<h3 className="text-xl font-bold mb-4 text-gray-400">Your Native Language: {nativeLanguage?.name}</h3>
-						<div className="overflow-auto border-2 border-red-300 mb-2 h-chat p-4 space-y-4">{chatJsx}</div>
+						<div className="overflow-auto border-2 border-red-300 mb-2 h-chat p-4 space-y-4" ref={voiceContainerRef}>
+							{chatJsx}
+						</div>
 						<div className="icon-container">
 							<AudioRecorder
 								playLabel=""
