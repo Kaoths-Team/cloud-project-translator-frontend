@@ -53,7 +53,6 @@ $ yarn install
 #### Environment
 
 ```bash
-# install dependencies
 NEXT_PUBLIC_SOCKET_IO=Backend Endpoint
 ```
 
